@@ -30,11 +30,13 @@ class YOLO_mask:
     def yolo_detect_objects_mask(self, bgr_frame):
 
         results = self.model.predict(source=bgr_frame)
+        value = results[0]
+
+        boxes = value.boxes  # Boxes object for bbox outputs
+        masks = value.masks  # Masks object for segmenation masks outputs
+        probs = value.probs  # Class probabilities for classification outputs
 
 
-        boxes = results.boxes  # Boxes object for bbox outputs
-        masks = results.masks  # Masks object for segmenation masks outputs
-        probs = results.probs  # Class probabilities for classification outputs
 
 
 
