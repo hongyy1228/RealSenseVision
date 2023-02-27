@@ -8,6 +8,8 @@ rs = StreamingCamera()
 mrcnn = MaskRCNN()
 yolo_mask = YOLO_mask()
 
+pre_set_angle = 60
+
 while True:
     # Get frame in real time from Realsense camera
     ret, bgr_frame, depth_frame = rs.get_frame()
