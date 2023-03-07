@@ -26,10 +26,12 @@ class StreamingCamera:
         hole_filling = rs.hole_filling_filter()
         filled_depth = hole_filling.process(filtered_depth)
 
+        depth_intrin = rs.video_stream_profile(filled_depth.profile).get_intrinsics()
+
         depth_image = np.asanyarray(filled_depth.get_data())
         color_image = np.asanyarray(color_frame.get_data())
 
-        return True, color_image, depth_image
+        return True, color_image, depth_image, depth_intrin
 
     def release(self):
         self.pipeline.stop()
