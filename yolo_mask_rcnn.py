@@ -41,6 +41,10 @@ class YOLO_mask:
         with open('YOLOClass.txt') as f:
             self.class_list = f.read().splitlines()
 
+        self.real_x = 0
+        self.real_y = 0
+        self.real_dis = 0
+
 
 
         # Distances
@@ -82,9 +86,10 @@ class YOLO_mask:
                 if singID == 582:
                     depth_mm = depth_frame[cY, cX]
                     depth_point = rs2.rs2_deproject_pixel_to_point(depth_intrin, [cY, cX], depth_mm)
+                    print(depth_mm)
 
-                    self.real_x = round(depth_point[1], 2)
-                    self.real_y = round(depth_point[0], 2)
+                    self.real_x = round(depth_point[0], 2)
+                    self.real_y = -round(depth_point[1], 2)
                     self.real_dis = round(depth_point[2], 2)
 
                     cv2.putText(bgr_frame, "x:{} cm".format(self.real_x / 10), (cX, cY - 10), 0, 1.0, 2)
@@ -118,14 +123,12 @@ class YOLO_mask:
                 continue
             cls_id = int(self.obj_boxes.cls[i])
             class_name = self.class_list[cls_id]
+
             x = int(box.xyxy[0, 0])
             y = int(box.xyxy[0, 1])
             x1 = int(box.xyxy[0, 2])
             y1 = int(box.xyxy[0, 3])
             self.detection.append(([x, y, x1, y1], pred_prob, class_name))
-
-
-
 
         return self.obj_boxes, self.masks
 
@@ -166,15 +169,16 @@ class YOLO_mask:
                 cy = (y + y1) // 2
                 depth_mm = depth_frame[cy, cx]
 
+
                 depth_point = rs2.rs2_deproject_pixel_to_point(depth_intrin, [cy, cx], depth_mm)
 
-                real_x = round(depth_point[1], 2)
-                real_y = round(depth_point[0], 2)
+                real_x = round(depth_point[0], 2)
+                real_y = -round(depth_point[1], 2)
                 real_dis = round(depth_point[2], 2)
 
-                x_diff = self.real_x - real_x
-                y_diff = self.real_y - real_y
-                dis_diff = self.real_dis - real_dis
+                x_diff = (self.real_x/10) - (real_x/10)
+                y_diff = (self.real_y/10) - (real_y/10)
+                dis_diff = (self.real_dis/10) - (real_dis/10)
 
                 cv2.putText(bgr_frame, "x:{} cm".format(real_x / 10), (cx, cy - 10), 0, 1.0,(int(color[0]), int(color[1]), int(color[2])), 2)
                 cv2.putText(bgr_frame, "y:{} cm".format(real_y / 10), (cx, cy - 30), 0, 1.0,(int(color[0]), int(color[1]), int(color[2])), 2)
